@@ -1,22 +1,27 @@
-import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { StatusBar } from "expo-status-bar";
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Image,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  TouchableHighlight,
+  TouchableNativeFeedback,
+  Button,
+  Alert,
+  Platform,
+  Dimensions
+} from "react-native";
+import { useDimensions, useDeviceOrientation } from "@react-native-community/hooks";
+import OfficePixels from "./app/screens/OfficePixels";
 
 export default function App() {
-  let x = 1
+
+
   return (
-    <View style={styles.container}>
-      <Text>Hello React Native {x}</Text>
-      <StatusBar style="auto" />
-    </View>
+    <OfficePixels />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
