@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -7,8 +7,17 @@ import {
   Text,
   Button,
   Linking,
+  Alert,
+  TouchableWithoutFeedback,
+  SafeAreaView,
+  RefreshControl,
+  ScrollView
 } from "react-native";
 import { useDeviceOrientation } from "@react-native-community/hooks";
+
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
 
 function OfficePixels(props) {
   const pixels = [
@@ -33,6 +42,14 @@ function OfficePixels(props) {
   const [imageNumber, setImageNumber] = useState(0);
   // const [pixel, setPixel] = useState(require(`../assets/officepixels/${pixels[imageNumber]}.png`))
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setImageNumber(0)
+    wait(1000).then(() => setRefreshing(false));
+  }, []);
+
   const pixelIncrease = () => {
     if (imageNumber + 1) {
       setImageNumber(imageNumber + 1);
@@ -48,6 +65,14 @@ function OfficePixels(props) {
       setImageNumber(pixels.length-1);
     }
   };
+
+  const longPress=()=> {
+    Alert.alert(`${pixels[imageNumber]} selected`,`Thanks for choosing ${pixels[imageNumber]}!`,[
+      {
+        text: "Nice!"
+      }
+    ])
+  }
 
   const pixelArt = (imageNumber) => {
     switch (imageNumber) {
@@ -91,9 +116,23 @@ function OfficePixels(props) {
   const orientation = useDeviceOrientation();
 
   return (
-    <ImageBackground style={styles.background}>
+    <SafeAreaView style={styles.safeViewBackground}>
+      <ScrollView
+      contentContainerStyle={styles.scrollViewBackground}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+
+      >
+
+      <TouchableWithoutFeedback onLongPress={longPress}>
       <Image style={styles.pixelArt} source=
       {pixelArt(imageNumber)} />
+      </TouchableWithoutFeedback>
+
       <View>
         <Text style={styles.title}>This is {pixels[imageNumber]}</Text>
       </View>
@@ -114,10 +153,11 @@ function OfficePixels(props) {
         onPress={pixelIncrease}
       />
       </View>
+
       <View style={{ paddingBottom: orientation.portrait ? 150 : 10 }} />
-      <Text>Credit to: </Text>
+      <Text style={styles.text}>Credit to: </Text>
       <Text
-        style={{ color: "blue", paddingBottom: 10 }}
+        style={styles.link}
         onPress={() =>
           Linking.openURL(
             "https://pixelfigures.tumblr.com/post/68724021934/the-office-pixel-art"
@@ -126,17 +166,27 @@ function OfficePixels(props) {
       >
         Pixel Figures on Tumblr
       </Text>
-    </ImageBackground>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 export default OfficePixels;
 
 const styles = StyleSheet.create({
-  background: {
+  safeViewBackground: {
+
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
+    alignSelf: 'center'
+  },
+  scrollViewBackground: {
+    // backgroundColor: 'blue',
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    alignSelf: 'center',
   },
   forwardButton: {
     alignContent: "center",
@@ -148,7 +198,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey'
   },
   pixelArt: {
-    // justifyContent: "center",
     alignSelf: "center",
     width: 100,
     height: 200,
@@ -156,6 +205,16 @@ const styles = StyleSheet.create({
   title: {
     color: 'black',
     fontSize: 20,
-    paddingTop: 50
-  }
+    paddingTop: 50,
+    alignSelf:"center"
+  },
+  text: {
+    color: "black",
+    alignSelf: 'center'
+  },
+  link: {
+    color: "blue",
+    paddingBottom: 20,
+    alignSelf: 'center'
+  },
 });
